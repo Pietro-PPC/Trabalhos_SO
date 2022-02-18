@@ -30,8 +30,8 @@ int main(){
     queue_print("Filarmonica", (queue_t *) queue, print_elem);
     fflush(stdout);
     while(queue_size((queue_t *) queue)){
-        printf("%d\n", queue_remove((queue_t **) &queue, (queue_t *)queue));
-        fflush(stdout);
+        queue_remove((queue_t **) &queue, (queue_t *)queue);
+        printf("\n");
         queue_print("Filarmonica", (queue_t *) queue, print_elem);
     }
 

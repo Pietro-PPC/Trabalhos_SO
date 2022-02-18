@@ -16,17 +16,25 @@ int queue_size (queue_t *queue){
 }
 
 void queue_print (char *name, queue_t *queue, void print_elem (void*) ){
-    printf("Fila %s\n", name);
+    printf("%s [", name); // imprime inicio da fila
 
-    if (!queue)
+    if (!queue){ // fila vazia, imprime final e retorna.
+        printf("]\n");
         return;
+    }
 
+    // imprime primeiro elemento sem espaço
     queue_t *it = queue;
-    do {
-        print_elem((void*) it);
+    print_elem((void*) it);
+    it = it->next;
+    // imprime elementos restantes com espaço
+    while(it != queue) {
         printf(" ");
+        print_elem((void*) it);
         it = it->next;
-    } while(it != queue);
+    };
+    // imprime final da fila
+    printf("]\n");
 }
 
 /*
@@ -70,12 +78,20 @@ int queue_remove (queue_t **queue, queue_t *elem){
 
     // procura na fila começando do "segundo" elemento
     queue_t *it = (*queue)->next;
-    while (it != elem && it != *queue)
-        it++;
-    
+    while (it != elem && it != *queue){
+        it = it->next;
+    }
     // chegou no inicio novamente e elemento nao esta no inicio
     if (it == *queue && it != elem)
         return -3;
+    
+    // elemento é a cabeça da fila
+    if (elem == *queue)
+        *queue = (*queue)->next;
+
+    // apenas um elemento
+    if ((*queue)->next == (*queue))
+        *queue = NULL;
     
     queue_t *prev = elem->prev;
     queue_t *next = elem->next;
@@ -84,10 +100,6 @@ int queue_remove (queue_t **queue, queue_t *elem){
 
     elem->next = NULL;
     elem->prev = NULL;
-
-    // apenas um elemento
-    if ((*queue)->next == (*queue))
-        *queue = NULL;
 
     return 0;
 }
