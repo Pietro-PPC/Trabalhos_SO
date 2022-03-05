@@ -112,8 +112,8 @@ void task_yield(){
     task_switch(&dispatcherTask);
 }
 
-/* 
- * lastTask: última task executada pelo dispatcher ou NULL, caso não haja.
+/*
+ * Escalonador 
  */
 task_t *scheduler() {
     if (!readyTasks) 
@@ -135,6 +135,8 @@ task_t *scheduler() {
             (task_ptr->dynamic_prio)--;
         task_ptr = task_ptr->next;
     } while (task_ptr != readyTasks);
+    
+    // Prioridade da próxima tarefa a ser executada volta ao valor estático
     ret->dynamic_prio = ret->static_prio;
 
     return ret;
@@ -147,6 +149,7 @@ void dispatcher() {
         #endif
         task_t *nextTask = scheduler();
         if (nextTask){
+            // Tarefa sai da fila de prontas, pois estará rodando
             queue_remove((queue_t **) &readyTasks, (queue_t *) nextTask);
             nextTask->status = RODANDO;
             task_switch(nextTask);
@@ -160,12 +163,12 @@ void dispatcher() {
                     break;
             }
         }
-
     }
     task_exit(0);
 }
 
-/* Seta a prioridade estática da tarefa task para prio.
+/* 
+ * Seta a prioridade estática da tarefa task para prio.
  * Se task == NULL, seta a prioridade da tarefa atual
  */
 void task_setprio (task_t *task, int prio){
@@ -185,12 +188,19 @@ int task_getprio (task_t *task){
     return task->static_prio;
 }
 
-// Additional functions
+// FUNÇÕES ADICIONAIS
+
+/*
+ * Imprime task passada como argumento. A ser usada na função queue_print
+ */
 void print_task(void *_task){
     task_t *task = _task;
     printf("%d(%d)", task->id, task->dynamic_prio);
 }
 
+/*
+ * Inicializa valores default de uma task
+ */
 void set_default_values_task(task_t *task){
     task->prev = NULL;
     task->next = NULL;
