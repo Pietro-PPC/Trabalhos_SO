@@ -7,7 +7,7 @@ void dispatcher();
 void print_task(void *_task);
 
 int tid, userTasks = 0;
-task_t *curTask = NULL, prevTask, mainTask, dispatcherTask, *readyTasks = NULL;
+task_t *curTask = NULL, mainTask, dispatcherTask, *readyTasks = NULL;
 
 void ppos_init (){
     tid = 0; // Não será usado por tarefas criadas usando task_create
@@ -18,9 +18,9 @@ void ppos_init (){
     mainTask.status = RODANDO;
     getcontext(&(mainTask.context));
 
-    task_create(&dispatcherTask, dispatcher, NULL);
-
     curTask = &mainTask;
+
+    task_create(&dispatcherTask, dispatcher, NULL);
 
     setvbuf (stdout, 0, _IONBF, 0) ;
 }
@@ -55,13 +55,16 @@ int task_create (task_t *task, void (*start_func)(void *), void *arg){
 
     task->status = PRONTA;
     
-    userTasks++;
 
+    #ifdef DEBUG
+    printf("Task %d criada por Task %d\n", task->id, curTask->id);
+    #endif
     if (tid == 1) return tid;
 
-    queue_append(&readyTasks, task);
+    userTasks++;
+    queue_append((queue_t **) &readyTasks, (queue_t *) task);
     #ifdef DEBUG
-    queue_print("Adicionou elemento", readyTasks, printTask);
+    queue_print("Fila de prontas", (queue_t *) readyTasks, (void *) print_task);
     #endif
 
     return tid;
@@ -78,17 +81,27 @@ int task_switch(task_t *task){
     task_t *taskPtr = curTask;
     curTask = task;
     
+    #ifdef DEBUG
+    printf("Troca de tasks: %d -> %d\n", taskPtr->id, curTask->id);
+    #endif
+
     swapcontext(&(taskPtr->context), &(task->context));
     return 0;
 }
 
 void task_exit (int exit_code) {
-    ucontext_t *auxContext = &curTask->context;
+    task_t *prevTask = curTask;
     curTask->status = TERMINADA;
+    if (curTask->id > 1)
+        userTasks--;
     
     curTask = (curTask == &dispatcherTask) ? &mainTask : &dispatcherTask;
-    userTasks--;
-    swapcontext(auxContext, &(mainTask.context));
+    
+    #ifdef DEBUG
+    printf("Saída de task: %d -> %d\n", prevTask->id, curTask->id);
+    #endif
+
+    swapcontext(&(prevTask->context), &(curTask->context));
 }
 
 int task_id() {
@@ -110,18 +123,22 @@ void dispatcher() {
     while (userTasks){ 
         task_t *nextTask = scheduler();
         if (nextTask){
-            queue_remove(&readyTasks, nextTask);
+            queue_remove((queue_t **) &readyTasks, (queue_t *) nextTask);
             nextTask->status = RODANDO;
             task_switch(nextTask);
 
             switch(nextTask->status){
                 case PRONTA:
-                    queue_append(&readyTasks, nextTask);
+                    queue_append((queue_t **) &readyTasks, (queue_t *) nextTask);
                     break;
                 case TERMINADA:
                     free(nextTask->context.uc_stack.ss_sp);
                     break;
             }
+
+            #ifdef DEBUG
+            queue_print("Fila de prontas", (queue_t *) readyTasks, (void *) print_task);
+            #endif
         }
 
     }
@@ -131,5 +148,5 @@ void dispatcher() {
 // Additional functions
 void print_task(void *_task){
     task_t *task = _task;
-    printf("%d(%d)", task->id, task->status);
+    printf("%d", task->id);
 }
