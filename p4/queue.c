@@ -1,3 +1,5 @@
+// GRR20190430 Pietro Polinari Cavassin
+
 #include <stdio.h>
 #include "queue.h"
 

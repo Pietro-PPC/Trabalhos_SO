@@ -1,3 +1,5 @@
+// GRR20190430 Pietro Polinari Cavassin
+
 #include "ppos.h"
 #include "queue.h"
 #include <stdlib.h>
@@ -10,7 +12,8 @@ void set_default_values_task(task_t *task);
 int tid, userTasks = 0;
 task_t *curTask = NULL, mainTask, dispatcherTask, *readyTasks = NULL;
 
-void ppos_init (){
+void ppos_init ()
+{
     tid = 0; // Não será usado por tarefas criadas usando task_create
 
     set_default_values_task(&mainTask);
@@ -20,7 +23,11 @@ void ppos_init (){
 
     curTask = &mainTask;
 
-    task_create(&dispatcherTask, dispatcher, NULL);
+    if (task_create(&dispatcherTask, dispatcher, NULL) == -2)
+    {
+        perror("Erro na alocação da pilha para o dispatcher!\n");
+        exit(1);
+    };
 
     setvbuf (stdout, 0, _IONBF, 0) ;
 }
@@ -32,7 +39,8 @@ void ppos_init (){
  *  -1: Ponteiro de task aponta para NULL
  *  -2: Erro na alocação da pilha
  */
-int task_create (task_t *task, void (*start_func)(void *), void *arg){
+int task_create (task_t *task, void (*start_func)(void *), void *arg)
+{
     char *stack;
     
     if (!task)
@@ -71,7 +79,8 @@ int task_create (task_t *task, void (*start_func)(void *), void *arg){
  * Retornos de erro
  *  -1: Task passada como parâmetro é NULL
  */
-int task_switch(task_t *task){
+int task_switch(task_t *task)
+{
     if (!task)
         return -1;
     
@@ -86,7 +95,8 @@ int task_switch(task_t *task){
     return 0;
 }
 
-void task_exit (int exit_code) {
+void task_exit (int exit_code) 
+{
     task_t *prevTask = curTask;
     curTask->status = TERMINADA;
     if (curTask->id > 1)
@@ -101,36 +111,41 @@ void task_exit (int exit_code) {
     swapcontext(&(prevTask->context), &(curTask->context));
 }
 
-int task_id() {
+int task_id() 
+{
     if (!curTask)
         return 0;
     return curTask->id;
 }
 
-void task_yield(){
+void task_yield()
+{
     curTask->status = PRONTA;
     task_switch(&dispatcherTask);
 }
 
 /*
- * Escalonador 
+ * Escalonador. Retorna NULL caso fila de prontos esteja vazia
  */
-task_t *scheduler() {
+task_t *scheduler() 
+{
     if (!readyTasks) 
         return NULL;
 
     // Seleciona próxima task de maior prioridade
     task_t *ret = readyTasks;
     task_t *task_ptr = readyTasks->next;
-    while(task_ptr != readyTasks){
-        if (task_ptr->dynamic_prio < ret->dynamic_prio)
+    while(task_ptr != readyTasks)
+    {
+        if (task_ptr->dynamic_prio <= ret->dynamic_prio)
             ret = task_ptr;
         task_ptr = task_ptr->next;
     }
 
     // Atualiza prioridades das tasks
     task_ptr = readyTasks;
-    do {
+    do 
+    {
         if (task_ptr->dynamic_prio > MIN_PRIO)
             (task_ptr->dynamic_prio)--;
         task_ptr = task_ptr->next;
@@ -142,19 +157,23 @@ task_t *scheduler() {
     return ret;
 }
 
-void dispatcher() {
-    while (userTasks){ 
+void dispatcher() 
+{
+    while (userTasks)
+    { 
         #ifdef DEBUG
         queue_print("Fila de prontas", (queue_t *) readyTasks, (void *) print_task);
         #endif
         task_t *nextTask = scheduler();
-        if (nextTask){
+        if (nextTask)
+        {
             // Tarefa sai da fila de prontas, pois estará rodando
             queue_remove((queue_t **) &readyTasks, (queue_t *) nextTask);
             nextTask->status = RODANDO;
             task_switch(nextTask);
 
-            switch(nextTask->status){
+            switch(nextTask->status)
+            {
                 case PRONTA:
                     queue_append((queue_t **) &readyTasks, (queue_t *) nextTask);
                     break;
@@ -171,7 +190,8 @@ void dispatcher() {
  * Seta a prioridade estática da tarefa task para prio.
  * Se task == NULL, seta a prioridade da tarefa atual
  */
-void task_setprio (task_t *task, int prio){
+void task_setprio (task_t *task, int prio)
+{
     if (!task)
         task = curTask;
 
@@ -182,7 +202,8 @@ void task_setprio (task_t *task, int prio){
 /*
  * Retorna prioridade estática da tarefa 
  */
-int task_getprio (task_t *task){
+int task_getprio (task_t *task)
+{
     if (!task)
         task = curTask;
     return task->static_prio;
@@ -193,7 +214,8 @@ int task_getprio (task_t *task){
 /*
  * Imprime task passada como argumento. A ser usada na função queue_print
  */
-void print_task(void *_task){
+void print_task(void *_task)
+{
     task_t *task = _task;
     printf("%d(%d)", task->id, task->dynamic_prio);
 }
@@ -201,7 +223,8 @@ void print_task(void *_task){
 /*
  * Inicializa valores default de uma task
  */
-void set_default_values_task(task_t *task){
+void set_default_values_task(task_t *task)
+{
     task->prev = NULL;
     task->next = NULL;
     task->status = PRONTA;

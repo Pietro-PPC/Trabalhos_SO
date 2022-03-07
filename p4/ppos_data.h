@@ -1,3 +1,5 @@
+// GRR20190430 Pietro Polinari Cavassin
+
 // PingPongOS - PingPong Operating System
 // Prof. Carlos A. Maziero, DINF UFPR
 // Versão 1.4 -- Janeiro de 2022
