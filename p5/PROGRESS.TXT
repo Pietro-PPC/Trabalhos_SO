@@ -1,0 +1,1 @@
+Fiz quase tudo. Estou com duvida do que ocorre se o numero de ticks acabar na main antes de criar todas as tarefas. Vai executar so as tarefas que foram criadas, sem esperar criar as novas.
