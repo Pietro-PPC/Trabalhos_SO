@@ -1,7 +1,7 @@
 CFLAGS= -Wall
 DEBUG= -DDEBUG
 
-MAINFILE= pingpong-scheduler.c
+MAINFILE= pingpong-preempcao.c
 
 all: main
 

@@ -19,7 +19,7 @@ task_t *curTask = NULL, mainTask, dispatcherTask, *readyTasks = NULL;
 
 void ppos_init ()
 {
-    tid = 0; // Este id não será usado por tarefas criadas usando task_create
+    tid = 0; // ID 0 usado apenas na main
 
     // Cria task da main
     set_default_values_task(&mainTask);
@@ -168,7 +168,7 @@ task_t *scheduler()
     task_t *task_ptr = readyTasks->next;
     while(task_ptr != readyTasks)
     {
-        if (task_ptr->dynamic_prio <= ret->dynamic_prio)
+        if (task_ptr->dynamic_prio < ret->dynamic_prio)
             ret = task_ptr;
         task_ptr = task_ptr->next;
     }
