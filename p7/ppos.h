@@ -51,7 +51,7 @@ int task_id () ;
 void task_suspend (task_t **queue) ;
 
 // acorda a tarefa indicada, que está suspensa na fila indicada
-int task_resume (task_t *task, task_t **queue) ;
+void task_resume (task_t *task, task_t **queue) ;
 
 // operações de escalonamento ==================================================
 
