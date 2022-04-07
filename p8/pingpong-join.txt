@@ -1,0 +1,71 @@
+main: inicio
+main: 0
+    Pang: inicio
+    Pang: 0
+        Peng: inicio
+        Peng: 0
+            Ping: inicio
+            Ping: 0
+                Pong: inicio
+                Pong: 0
+                    Pung: inicio
+                    Pung: 0
+main: 1
+    Pang: 1
+        Peng: 1
+            Ping: 1
+                Pong: 1
+                    Pung: 1
+main: esperando Pang...
+    Pang: 2
+        Peng: 2
+            Ping: 2
+                Pong: 2
+                    Pung: 2
+    Pang: 3
+        Peng: 3
+                Pong: 3
+                    Pung: 3
+            Ping: 3
+    Pang: fim
+Task 2 exit: execution time 24263 ms, processor time  4418 ms, 442 activations
+        Peng: 4
+                Pong: 4
+main: Pang acabou com exit code 2
+main: esperando Peng...
+            Ping: 4
+                    Pung: 4
+        Peng: 5
+                Pong: 5
+                    Pung: 5
+            Ping: 5
+        Peng: fim
+Task 3 exit: execution time 33149 ms, processor time  6636 ms, 664 activations
+                Pong: 6
+                    Pung: 6
+main: Peng acabou com exit code 3
+main: esperando Ping...
+            Ping: 6
+                Pong: 7
+                    Pung: 7
+            Ping: 7
+                Pong: 8
+                    Pung: 8
+            Ping: fim
+Task 4 exit: execution time 39840 ms, processor time  8861 ms, 887 activations
+main: Ping acabou com exit code 4
+main: esperando Pong...
+                Pong: 9
+                    Pung: 9
+                Pong: fim
+Task 5 exit: execution time 44243 ms, processor time 11063 ms, 1107 activations
+                    Pung: 10
+main: Pong acabou com exit code 5
+main: esperando Pung...
+                    Pung: 11
+                    Pung: fim
+Task 6 exit: execution time 46469 ms, processor time 13286 ms, 1329 activations
+main: Pung acabou com exit code 6
+main: fim
+Task 0 exit: execution time 46469 ms, processor time  2205 ms, 226 activations
+Task 1 exit: execution time 46469 ms, processor time     0 ms, 4655 activations
