@@ -1,0 +1,22 @@
+#! /bin/bash
+
+# Este programa tem um parametro: O diretorio do trabalho a ser compactado
+
+if [ $# -ne 1 ] 
+then
+    echo "A chamada requer 1 argumento:"
+    echo "./compacta <nome_diretorio_proj>"
+    exit 1
+fi
+
+FILES="queue.c ppos_core.c ppos_data.h"
+PROJDIR=$1
+NEWDIR=ppc19_${PROJDIR}
+
+mkdir $NEWDIR
+for F in $FILES ; do
+    cp ${PROJDIR}/$F $NEWDIR
+done
+tar -czvf ppc19_${PROJDIR}.tgz $NEWDIR
+rm -rf $NEWDIR
+
