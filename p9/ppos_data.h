@@ -45,7 +45,7 @@ typedef struct task_t
   struct task_t *suspended; // fila de tarefas suspensas esperando esta tarefa.
   short exit_code; // código de retorno após tarefa encerrar
 
-  int wakeupTime;
+  int wakeup_time;
 
    // ... (outros campos serão adicionados mais tarde)
 } task_t ;

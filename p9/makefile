@@ -1,7 +1,7 @@
 CFLAGS= -Wall
 DEBUG= -DDEBUG
 
-MAINFILE= pingpong-join.c
+MAINFILE= pingpong-sleep.c
 
 all: main
 
@@ -11,8 +11,8 @@ main: ppos_core.o queue.o $(MAINFILE)
 debug: ppos_core_debug.o queue.o $(MAINFILE)
 	gcc ppos_core_debug.o queue.o $(MAINFILE) -o debug $(CFLAGS)
 
-test: ppos_core.o test.c
-	gcc ppos_core.o test.c -o test $(CFLAGS)
+test: ppos_core.o queue.o test.c
+	gcc ppos_core.o queue.o test.c -o test $(CFLAGS)
 
 ppos_core_debug.o: ppos.h ppos_data.h ppos_core.c
 	gcc -c ppos_core.c -o ppos_core_debug.o $(CFLAGS) $(DEBUG)

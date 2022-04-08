@@ -207,16 +207,32 @@ task_t *scheduler()
     return ret;
 }
 
+void wakeup_tasks()
+{
+    if (!sleepingTasks)
+        return;
+    
+    task_t *curTask = sleepingTasks, *nextTask;
+    do // acorda tasks que devem ser acordadas
+    {
+        nextTask = curTask->next;
+        if (totalTicks >= curTask->wakeup_time)
+            task_resume(curTask, &sleepingTasks);
+        curTask = nextTask;
+    } while (nextTask != sleepingTasks && sleepingTasks );
+}
+
 void dispatcher() 
 {
-    while (userTasks)
+    while (userTasks || sleepingTasks)
     {
-        #ifdef DEBUG
-        queue_print("Fila de prontas", (queue_t *) readyTasks, (void *) print_task);
-        #endif
+        wakeup_tasks();
         task_t *nextTask = scheduler();
         if (nextTask)
         {
+            #ifdef DEBUG
+            queue_print("Fila de prontas", (queue_t *) readyTasks, (void *) print_task);
+            #endif
             // Tarefa sai da fila de prontas, pois estará rodando
             ticksLeft = TASK_TICKS;
             queue_remove((queue_t **) &readyTasks, (queue_t *) nextTask);
@@ -232,10 +248,6 @@ void dispatcher()
                     free(nextTask->context.uc_stack.ss_sp);
                     break;
             }
-        } else {
-            #ifdef DEBUG
-            printf("Sem task. UserTasks: %d\n", userTasks);
-            #endif
         }
     }
     task_exit(0);
@@ -317,7 +329,8 @@ int task_join(task_t *task)
 void task_sleep(int t)
 {
     queue_remove((queue_t **) &readyTasks, (queue_t *) curTask);
-    curTask->wakeupTime = totalTicks + t;
+    curTask->wakeup_time = totalTicks + t;
+    
     queue_append((queue_t **) &sleepingTasks, (queue_t *) curTask);
     task_yield();
 }
